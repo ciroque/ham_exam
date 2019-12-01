@@ -74,7 +74,7 @@ jobs:
 
       - run:
           name: Find release...
-          command: pwd && ls -lhs && cd _build/prod && ls -lsh
+          command: pwd && ls -lhs && cd _build/prod/rel/ham_exam/releases/0.1.0/ && ls -lsh
 
       - save_cache:
           key: ham_exam-prod-{{ .Branch }}
