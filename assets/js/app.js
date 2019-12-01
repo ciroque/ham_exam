@@ -1,6 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import Home from './components/home/home'
 
-const ReactOnPhoenix = () => <div>This is a React Component!!!</div>;
-
-ReactDOM.render(<ReactOnPhoenix />, document.getElementById('appRoot'));
+ReactDOM.render(<Home />, document.getElementById('appRoot'));
