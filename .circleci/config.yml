@@ -59,7 +59,7 @@ jobs:
 
       - run:
           name: Install necessary things
-          command: apk update && apk add --no-cache curl bash yarn
+          command: apk update && apk add --no-cache curl bash yarn tree
 
       - run:
           name: Compile the UI for Prod
@@ -74,7 +74,7 @@ jobs:
 
       - run:
           name: Find release...
-          command: pwd && ls -lhs && cd _build/prod/rel/ham_exam/releases/0.1.0/ && ls -lsh
+          command: cd _build/prod/rel/ham_exam/releases/0.1.0/ && tree
 
       - save_cache:
           key: ham_exam-prod-{{ .Branch }}
