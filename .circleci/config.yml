@@ -69,12 +69,12 @@ jobs:
       - run:
           name: Compile for prod
           command: |
-            MIX_ENV=prod mix release && mix phx.digest
-      #            MIX_ENV=prod mix compile && mix phx.digest
+            MIX_ENV=prod mix compile && mix phx.digest
+      #            MIX_ENV=prod mix release && mix phx.digest
 
       - run:
           name: Find release...
-          command: pwd && ls -lhs && cd _build/prod/rel/ham_exam/releases/0.1.0/consolidated/ && ls -lsh
+          command: pwd && ls -lhs && cd _build/prod/rel/ham_exam/releases/0.1.0/ && ls -lsh
 
       - save_cache:
           key: ham_exam-prod-{{ .Branch }}
