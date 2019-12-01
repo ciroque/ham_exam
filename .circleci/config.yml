@@ -1,0 +1,113 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: elixir:1.9-alpine
+
+    working_directory: /opt/app/ham_exam
+
+    environment:
+      MIX_ENV: test
+      HAM_EXAM_SECRET_KEY_BASE: HAM_EXAM_SECRET_KEY_BASE
+
+    steps:
+      - checkout
+
+      - run:
+          name: Set up Hex locally
+          command: |
+            mix local.hex --force && mix local.rebar --force
+
+      - run:
+          name: Set mix.lock aside
+          command: cp mix.lock mix.lock.orig
+
+      - restore_cache:
+          keys:
+            - ham_exam-{{ checksum "mix.lock.orig" }}
+            - ham_exam-{{ .Branch }}
+            - ham_exam-master
+
+      - run:
+          name: Download dependencies
+          command: mix deps.get
+
+      - save_cache:
+          key: ham_exam-{{ .Branch }}
+          paths:
+            - _build
+            - deps
+
+      - save_cache:
+          key: ham_exam-{{ checksum "mix.lock.orig" }}
+          paths:
+            - _build
+            - deps
+
+      - run:
+          name: Run Tests
+          command: mix test
+
+      ## Prod docker image building
+      - restore_cache:
+          keys:
+            - ham_exam-prod-{{ checksum "mix.lock.orig" }}
+            - ham_exam-prod-{{ .Branch }}
+            - ham_exam-prod-master
+
+      - run:
+          name: Compile for prod
+          command: |
+            MIX_ENV=prod mix compile && mix phx.digest
+#            MIX_ENV=prod mix release && mix phx.digest
+
+      - run:
+          name: Find release...
+          command: pwd && ls -lhs && cd _build && ls -lsh
+
+      - save_cache:
+          key: ham_exam-prod-{{ .Branch }}
+          paths:
+            - _build/prod
+
+      - save_cache:
+          key: ham_exam-prod-{{ checksum "mix.lock.orig" }}
+          paths:
+            - _build/prod
+
+      - run:
+          name: Install necessary things
+          command: apk update && apk add --no-cache curl bash
+
+      - run:
+          name: Install Docker
+          command: |
+            export DOCKER_VERSION=$(curl --silent --fail --retry 3 https://download.docker.com/linux/static/stable/x86_64/ | grep -o -e 'docker-[.0-9]*-ce\.tgz' | sort -r | head -n 1) \
+            && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/${DOCKER_VERSION}" \
+            && echo Docker URL: $DOCKER_URL \
+            && curl --silent --show-error --location --fail --retry 3 --output /tmp/docker.tgz "${DOCKER_URL}" \
+            && ls -lha /tmp/docker.tgz \
+            && tar -xz -C /tmp -f /tmp/docker.tgz \
+            && mv /tmp/docker/* /usr/bin \
+            && rm -rf /tmp/docker /tmp/docker.tgz \
+            && which docker \
+            && (docker version || true)
+
+      # all steps after this run in the remote environment
+      - type: setup-docker-engine
+        reusable: true
+        version: 17.06.0-ce
+
+      - run:
+          name: Build docker image and publish image tagged with commit
+          command: |
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker build -t ciroque/$CIRCLE_PROJECT_REPONAME:latest .
+            docker push ciroque/$CIRCLE_PROJECT_REPONAME:latest
+workflows:
+  version: 2
+  build:
+    jobs:
+    - build:
+        context: org-global
