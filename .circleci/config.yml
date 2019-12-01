@@ -62,15 +62,24 @@ jobs:
           command: apk update && apk add --no-cache curl bash yarn tree
 
       - run:
+          name: Compile
+          working_directory: /opt/app/ham_exam
+          command: mix do deps.get --only prod, deps.compile, compile
+
+      - run:
           name: Compile the UI for Prod
           command: yarn && yarn deploy
           working_directory: /opt/app/ham_exam/assets
 
       - run:
-          name: Compile for prod
-          command: |
-            MIX_ENV=prod mix compile && mix phx.digest
-      #            MIX_ENV=prod mix release && mix phx.digest
+          name: Build digest
+          working_directory: /opt/app/ham_exam
+          command: mix phx.digest
+
+      - run:
+          name: Build release
+          working_directory: /opt/app/ham_exam
+          command: MIX_ENV=prod mix release --env=prod
 
       - run:
           name: Find release...
