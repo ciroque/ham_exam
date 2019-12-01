@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Build release
           working_directory: /opt/app/ham_exam
-          command: MIX_ENV=prod mix release --env=prod
+          command: MIX_ENV=prod mix distillery.release --env=prod
 
       - run:
           name: Find release...
