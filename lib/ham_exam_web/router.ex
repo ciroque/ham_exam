@@ -12,6 +12,11 @@ defmodule HamExamWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
   end
+  scope "/api", HamExamWeb do
+    pipe_through :api
+
+    get "/questions", QuestionsController, :index
+  end
 
   scope "/", HamExamWeb do
     pipe_through :browser
@@ -19,8 +24,4 @@ defmodule HamExamWeb.Router do
     get "/*path", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", HamExamWeb do
-  #   pipe_through :api
-  # end
 end
