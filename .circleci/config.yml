@@ -49,12 +49,18 @@ jobs:
           name: Run Tests
           command: mix test
 
+      ## ###########################################################
       ## Prod docker image building
       - restore_cache:
           keys:
             - ham_exam-prod-{{ checksum "mix.lock.orig" }}
             - ham_exam-prod-{{ .Branch }}
             - ham_exam-prod-master
+
+      - run:
+          name: Compile the UI for Prod
+          command: yarn && yarn deploy
+          working_directory: /opt/app/ham_exam/assets
 
       - run:
           name: Compile for prod
@@ -64,7 +70,7 @@ jobs:
 
       - run:
           name: Find release...
-          command: pwd && ls -lhs && cd _build && ls -lsh
+          command: pwd && ls -lhs && cd _build/prod && ls -lsh
 
       - save_cache:
           key: ham_exam-prod-{{ .Branch }}
