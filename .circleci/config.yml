@@ -58,6 +58,10 @@ jobs:
             - ham_exam-prod-master
 
       - run:
+          name: Install necessary things
+          command: apk update && apk add --no-cache curl bash yarn
+
+      - run:
           name: Compile the UI for Prod
           command: yarn && yarn deploy
           working_directory: /opt/app/ham_exam/assets
@@ -81,10 +85,6 @@ jobs:
           key: ham_exam-prod-{{ checksum "mix.lock.orig" }}
           paths:
             - _build/prod
-
-      - run:
-          name: Install necessary things
-          command: apk update && apk add --no-cache curl bash
 
       - run:
           name: Install Docker
