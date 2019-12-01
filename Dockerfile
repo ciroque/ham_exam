@@ -24,7 +24,7 @@ WORKDIR /opt/app/ham_exam
 RUN mix phx.digest
 
 RUN mkdir -p /opt/app/built && \
-    MIX_ENV=prod mix release --env=prod && \
+    MIX_ENV=prod mix distillery.release --env=prod && \
     cp _build/prod/rel/ham_exam/releases/0.1.0/ham_exam.tar.gz /opt/app/built
 
 ## Now, build the actual release image
