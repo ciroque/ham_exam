@@ -76,24 +76,19 @@ jobs:
           working_directory: /opt/app/ham_exam
           command: mix phx.digest
 
-      - run:
-          name: Build release
-          working_directory: /opt/app/ham_exam
-          command: MIX_ENV=prod mix distillery.release --env=prod
-
-      - run:
-          name: Find release...
-          command: cd _build/prod/ && tree
-
-      - save_cache:
-          key: ham_exam-prod-{{ .Branch }}
-          paths:
-            - _build/prod
-
-      - save_cache:
-          key: ham_exam-prod-{{ checksum "mix.lock.orig" }}
-          paths:
-            - _build/prod
+#      - run:
+#          name: Find release...
+#          command: cd _build/prod/ && tree
+#
+#      - save_cache:
+#          key: ham_exam-prod-{{ .Branch }}
+#          paths:
+#            - _build/prod
+#
+#      - save_cache:
+#          key: ham_exam-prod-{{ checksum "mix.lock.orig" }}
+#          paths:
+#            - _build/prod
 
       - run:
           name: Install Docker
@@ -113,6 +108,11 @@ jobs:
       - type: setup-docker-engine
         reusable: true
         version: 17.06.0-ce
+
+      - run:
+          name: Build release
+          working_directory: /opt/app/ham_exam
+          command: MIX_ENV=prod mix distillery.release --env=prod
 
       - run:
           name: Build docker image and publish image tagged with commit
